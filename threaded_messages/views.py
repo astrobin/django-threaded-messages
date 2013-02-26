@@ -115,7 +115,10 @@ def compose(request, recipient=None, form_class=ComposeForm,
         form = form_class(data=request.POST, recipient_filter=recipient_filter)
         if form.is_valid():
             form.save(sender=request.user)
+<<<<<<< HEAD
             messages.success(request, _(u"Message successfully sent."))
+=======
+>>>>>>> Remove setting session messages.
             if success_url is None:
                 success_url = reverse('messages_inbox')
             if request.GET.has_key('next'):
@@ -157,7 +160,10 @@ def delete(request, thread_id, success_url=None):
 
     user_part.deleted_at = right_now
     user_part.save()
+<<<<<<< HEAD
     messages.success(request, message=_(u"Conversation successfully deleted."))
+=======
+>>>>>>> Remove setting session messages.
     return HttpResponseRedirect(success_url)
 
 
@@ -178,7 +184,10 @@ def undelete(request, thread_id, success_url=None):
 
     user_part.deleted_at = None
     user_part.save()
+<<<<<<< HEAD
     messages.success(request, _(u"Conversation successfully recovered."))
+=======
+>>>>>>> Remove setting session messages.
     return HttpResponseRedirect(success_url)
 
 
