@@ -176,7 +176,7 @@ def undelete(request, thread_id, success_url=None):
     elif success_url is None:
         success_url = reverse('messages_inbox')
 
-    user_part.deleted_at = now()
+    user_part.deleted_at = None
     user_part.save()
     messages.success(request, _(u"Conversation successfully recovered."))
     return HttpResponseRedirect(success_url)
