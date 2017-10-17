@@ -10,7 +10,6 @@ setup(
     download_url='https://github.com/Gidsy/django-threaded-messages',
     packages=(
         'threaded_messages',
-        'threaded_messages.migrations',
         'threaded_messages.templatetags',
     ),
     package_data={
