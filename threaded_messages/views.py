@@ -306,4 +306,4 @@ def recipient_search(request):
                          "img": avatar_img_url})
 
         return HttpResponse(simplejson.dumps(data),
-                            mimetype='application/json')
+                            content_type='application/json')
