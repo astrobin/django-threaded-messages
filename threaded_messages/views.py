@@ -6,7 +6,7 @@ import datetime
 from django.contrib.auth import login, load_backend, BACKEND_SESSION_KEY
 from django.core.exceptions import MultipleObjectsReturned
 from django.http import Http404, HttpResponseRedirect, HttpResponse
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.template import RequestContext
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -46,12 +46,12 @@ def inbox(request, template_name='messages/inbox.html'):
 
     thread_list = Participant.objects.inbox_for(request.user, read=read, only_unreplied=only_unreplied)
 
-    return render_to_response(template_name, {
+    return render(request, template_name, {
         'thread_list': thread_list,
         'only_read': only_read,
         'only_unread': only_unread,
         'only_unreplied': only_unreplied,
-    }, context_instance=RequestContext(request))
+    })
 
 
 @login_required
@@ -62,10 +62,10 @@ def search(request, template_name="messages/search.html"):
                                     participants=request.user.pk)\
                                     .order_by('-last_message').models(Thread)
                     # leads to error in haystack: .order_by("-last_message")
-    return render_to_response(template_name, {
+    return render(request, template_name, {
                                   "thread_results": results,
                                   "search_term": search_term,
-                                }, context_instance=RequestContext(request))
+                                })
 
 
 @login_required
@@ -76,9 +76,9 @@ def outbox(request, template_name='messages/inbox.html'):
         ``template_name``: name of the template to use.
     """
     thread_list = Participant.objects.outbox_for(request.user)
-    return render_to_response(template_name, {
+    return render(request, template_name, {
         'thread_list': thread_list,
-    }, context_instance=RequestContext(request))
+    })
 
 
 @login_required
@@ -91,9 +91,9 @@ def trash(request, template_name='messages/trash.html'):
     by sender and recipient.
     """
     message_list = Participant.objects.trash_for(request.user)
-    return render_to_response(template_name, {
+    return render(request, template_name, {
         'message_list': message_list,
-    }, context_instance=RequestContext(request))
+    })
 
 
 @login_required
@@ -126,10 +126,10 @@ def compose(request, recipient=None, form_class=ComposeForm,
         if recipient is not None:
             recipients = [u for u in User.objects.filter(username__in=[r.strip() for r in recipient.split('+')])]
             form.fields['recipient'].initial = recipients
-    return render_to_response(template_name, {
+    return render(request, template_name, {
         'form': form,
         'recipients': recipients,
-    }, context_instance=RequestContext(request))
+    })
 
 
 @login_required
@@ -223,12 +223,12 @@ def view(request, thread_id, form_class=ReplyForm,
             unread = False
         message_list.append((message, unread,))
     participant.read_thread()
-    return render_to_response(template_name, {
+    return render(request, template_name, {
         'thread': thread,
         'message_list': message_list,
         'form': form,
         'participant': participant,
-    }, context_instance=RequestContext(request))
+    })
 
 
 @login_required
@@ -285,9 +285,9 @@ def message_ajax_reply(request, thread_id,
                 logging.exception(e)
                 return HttpResponse(status=500, content="Message could not be sent")
 
-            return render_to_response(template_name,{
+            return render(request, template_name,{
                 "message": new_message,
-            }, context_instance=RequestContext(request))
+            })
         else:
             return HttpResponse(status=400, content="Invalid Form")
 
