@@ -281,7 +281,7 @@ def message_ajax_reply(request, thread_id,
         if form.is_valid():
             try:
                 (thread, new_message) = form.save(sender=request.user, thread=thread)
-            except Exception, e:
+            except Exception(e):
                 logging.exception(e)
                 return HttpResponse(status=500, content="Message could not be sent")
 
