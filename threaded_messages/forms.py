@@ -1,4 +1,4 @@
-import settings as sendgrid_settings
+from threaded_messages import settings as sendgrid_settings
 from django import forms
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
