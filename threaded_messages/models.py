@@ -99,7 +99,7 @@ class Thread(models.Model):
     all_msgs = models.ManyToManyField(Message, related_name='thread', verbose_name=_("Messages"))
     # the following fields are used to filter out messages that have not been replied to in the inbox
     creator = models.ForeignKey(User, related_name='created_threads', verbose_name=_("creator"),
-                                on_delete=models.SET_NULL)
+                                on_delete=models.CASCADE)
     replied = models.BooleanField(editable=False, default=False)
 
     def __unicode__(self):
