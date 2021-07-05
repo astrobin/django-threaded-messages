@@ -12,7 +12,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import ugettext as _
 from django.utils.translation import ugettext_noop
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models import Q
 from django.conf import settings
 from django.template.loader import render_to_string
