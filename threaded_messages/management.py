@@ -9,4 +9,4 @@ if "notification" in settings.INSTALLED_APPS:
         notification.create_notice_type("received_email", _("Private messages"), _("(this is highly recommended)"))
     signals.post_migrate.connect(create_notice_types, sender=notification)
 else:
-    print "Skipping creation of NoticeTypes (Threaded Messages) as notification app not found"
+    print("Skipping creation of NoticeTypes (Threaded Messages) as notification app not found")
