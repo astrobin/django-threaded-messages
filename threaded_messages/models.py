@@ -66,8 +66,10 @@ class Message(models.Model):
     A private message from user to user
     """
     body = models.TextField(_("body"))
-    sender = models.ForeignKey(User, related_name='sent_messages', blank=True, null=True, verbose_name=_("sender"))
-    parent_msg = models.ForeignKey('self', related_name='next_messages', blank=True, null=True, verbose_name=_("parent message"))
+    sender = models.ForeignKey(User, related_name='sent_messages', blank=True, null=True, verbose_name=_("sender"),
+                               on_delete=models.SET_NULL)
+    parent_msg = models.ForeignKey('self', related_name='next_messages', blank=True, null=True, verbose_name=_("parent message"),
+                                   on_delete=models.SET_NULL)
     sent_at = models.DateTimeField(_("sent at"), auto_now_add=True,
         db_index=True)
 
@@ -91,10 +93,11 @@ class Thread(models.Model):
     A linear conversation between two or more Users
     """
     subject = models.CharField(_("Subject"), max_length=120)
-    latest_msg = models.ForeignKey(Message, related_name='thread_latest', verbose_name=_("Latest message"))
+    latest_msg = models.ForeignKey(Message, related_name='thread_latest', verbose_name=_("Latest message"),
+                                   on_delete=models.CASCADE)
     all_msgs = models.ManyToManyField(Message, related_name='thread', verbose_name=_("Messages"))
     # the following fields are used to filter out messages that have not been replied to in the inbox
-    creator = models.ForeignKey(User, related_name='created_threads', verbose_name=_("creator"))
+    creator = models.ForeignKey(User, related_name='created_threads', verbose_name=_("creator"), on_delete=models.SET_NULL)
     replied = models.BooleanField(editable=False, default=False)
 
     def __unicode__(self):
@@ -114,8 +117,9 @@ class Participant(models.Model):
     """
     Thread manager for each participant
     """
-    thread = models.ForeignKey(Thread, related_name='participants', verbose_name=_("message thread"))
-    user = models.ForeignKey(User, related_name='threads', verbose_name=_("participant users"))
+    thread = models.ForeignKey(Thread, related_name='participants', verbose_name=_("message thread"),
+                               on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name='threads', verbose_name=_("participant users"), on_delete=models.CASCADE)
     read_at = models.DateTimeField(_("read at"), null=True, blank=True,
         db_index=True)
     replied_at = models.DateTimeField(_("replied at"), null=True, blank=True,
