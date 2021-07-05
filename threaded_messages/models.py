@@ -1,11 +1,11 @@
-from django.db import models
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.utils.translation import ugettext_lazy as _
+from django.db import models
 from django.db.models import F, Q
+from django.urls import reverse
+from django.utils.translation import ugettext_lazy as _
 
 from .listeners import start_listening
-
 from .settings import INBOX_COUNT_CACHE, INBOX_COUNT_CACHE_TIME
 
 start_listening()
@@ -25,17 +25,17 @@ class MessageManager(models.Manager):
         if read != None:
             if read == True:
                 # read messages have read_at set to a later value then last message of the thread
-                inbox = inbox.exclude(read_at__isnull=True)\
-                            .filter(read_at__gt=F("thread__latest_msg__sent_at"))
+                inbox = inbox.exclude(read_at__isnull=True) \
+                    .filter(read_at__gt=F("thread__latest_msg__sent_at"))
             else:
                 # unread threads are the ones that either have not been read at all or before the last message arrived
                 inbox = inbox.filter(Q(read_at__isnull=True)
-                                    | Q(read_at__lt=F("thread__latest_msg__sent_at")))
+                                     | Q(read_at__lt=F("thread__latest_msg__sent_at")))
 
         if only_unreplied != None:
             if only_unreplied == True:
                 inbox = inbox.filter(Q(replied_at__isnull=True)
-                                    | Q(replied_at__lt=F("thread__latest_msg__sent_at")))
+                                     | Q(replied_at__lt=F("thread__latest_msg__sent_at")))
 
         return inbox
 
@@ -68,10 +68,11 @@ class Message(models.Model):
     body = models.TextField(_("body"))
     sender = models.ForeignKey(User, related_name='sent_messages', blank=True, null=True, verbose_name=_("sender"),
                                on_delete=models.SET_NULL)
-    parent_msg = models.ForeignKey('self', related_name='next_messages', blank=True, null=True, verbose_name=_("parent message"),
+    parent_msg = models.ForeignKey('self', related_name='next_messages', blank=True, null=True,
+                                   verbose_name=_("parent message"),
                                    on_delete=models.SET_NULL)
     sent_at = models.DateTimeField(_("sent at"), auto_now_add=True,
-        db_index=True)
+                                   db_index=True)
 
     def __unicode__(self):
         return "%s - %s" % (str(self.sender), self.sent_at)
@@ -97,15 +98,15 @@ class Thread(models.Model):
                                    on_delete=models.CASCADE)
     all_msgs = models.ManyToManyField(Message, related_name='thread', verbose_name=_("Messages"))
     # the following fields are used to filter out messages that have not been replied to in the inbox
-    creator = models.ForeignKey(User, related_name='created_threads', verbose_name=_("creator"), on_delete=models.SET_NULL)
+    creator = models.ForeignKey(User, related_name='created_threads', verbose_name=_("creator"),
+                                on_delete=models.SET_NULL)
     replied = models.BooleanField(editable=False, default=False)
 
     def __unicode__(self):
         return self.subject
 
     def get_absolute_url(self):
-        return ('messages_detail', [self.id])
-    get_absolute_url = models.permalink(get_absolute_url)
+        return reverse('messages_detail', args=[self.id, ])
 
     class Meta:
         ordering = ['latest_msg']
@@ -119,13 +120,14 @@ class Participant(models.Model):
     """
     thread = models.ForeignKey(Thread, related_name='participants', verbose_name=_("message thread"),
                                on_delete=models.CASCADE)
-    user = models.ForeignKey(User, related_name='threads', verbose_name=_("participant users"), on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name='threads', verbose_name=_("participant users"),
+                             on_delete=models.CASCADE)
     read_at = models.DateTimeField(_("read at"), null=True, blank=True,
-        db_index=True)
+                                   db_index=True)
     replied_at = models.DateTimeField(_("replied at"), null=True, blank=True,
-        db_index=True)
+                                      db_index=True)
     deleted_at = models.DateTimeField(_("deleted at"), null=True, blank=True,
-        db_index=True)
+                                      db_index=True)
 
     objects = MessageManager()
 
@@ -138,7 +140,7 @@ class Participant(models.Model):
     def replied(self):
         """returns whether the recipient has replied the message or not"""
         if self.replied_at is None \
-            or self.replied_at < self.thread.latest_msg.sent_at:
+                or self.replied_at < self.thread.latest_msg.sent_at:
             return True
         return False
 
@@ -162,10 +164,10 @@ class Participant(models.Model):
     def get_next(self):
         try:
             participation = Participant.objects.inbox_for(
-                    self.user
-                ).filter(
-                    thread__latest_msg__sent_at__gt=self.thread.latest_msg.sent_at
-                ).reverse()[0]
+                self.user
+            ).filter(
+                thread__latest_msg__sent_at__gt=self.thread.latest_msg.sent_at
+            ).reverse()[0]
             return participation
         except:
             return None
@@ -173,9 +175,9 @@ class Participant(models.Model):
     def get_previous(self):
         try:
             participation = Participant.objects.inbox_for(
-                    self.user
-                ).filter(
-                    thread__latest_msg__sent_at__lt=self.thread.latest_msg.sent_at)[0]
+                self.user
+            ).filter(
+                thread__latest_msg__sent_at__lt=self.thread.latest_msg.sent_at)[0]
             return participation
         except:
             return None
@@ -209,8 +211,8 @@ def cached_inbox_count_for(user):
     else:
         count = inbox_count_for(user)
         cache.set(INBOX_COUNT_CACHE % user.pk,
-            count,
-            INBOX_COUNT_CACHE_TIME)
+                  count,
+                  INBOX_COUNT_CACHE_TIME)
         return count
 
 
