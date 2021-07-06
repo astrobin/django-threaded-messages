@@ -118,7 +118,7 @@ def compose(request, recipient=None, form_class=ComposeForm,
             form.save(sender=request.user)
             if success_url is None:
                 success_url = reverse('messages_inbox')
-            if request.GET.has_key('next'):
+            if 'next' in request.GET:
                 success_url = request.GET['next']
             return HttpResponseRedirect(success_url)
     else:
@@ -153,7 +153,7 @@ def delete(request, thread_id, success_url=None):
     except MultipleObjectsReturned:
         user_part = Participant.objects.filter(user = user, thread = thread)[0]
 
-    if request.GET.has_key('next'):
+    if 'next' in request.GET:
         success_url = request.GET['next']
     elif success_url is None:
         success_url = reverse('messages_inbox')
@@ -173,7 +173,7 @@ def undelete(request, thread_id, success_url=None):
     thread = get_object_or_404(Thread, id=thread_id)
     user_part = get_object_or_404(Participant, user=user, thread=thread)
 
-    if request.GET.has_key('next'):
+    if 'next' in request.GET:
         success_url = request.GET['next']
     elif success_url is None:
         success_url = reverse('messages_inbox')
