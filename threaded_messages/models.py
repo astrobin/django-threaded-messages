@@ -66,6 +66,7 @@ class Message(models.Model):
     A private message from user to user
     """
     body = models.TextField(_("body"))
+    body_html = models.TextField(_("body HTML"), blank=True, null=True)
     sender = models.ForeignKey(User, related_name='sent_messages', blank=True, null=True, verbose_name=_("sender"),
                                on_delete=models.SET_NULL)
     parent_msg = models.ForeignKey('self', related_name='next_messages', blank=True, null=True,
